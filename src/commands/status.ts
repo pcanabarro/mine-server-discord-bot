@@ -23,19 +23,14 @@ export async function execute(interaction: CommandInteraction): Promise<void> {
       return;
     }
 
-    const [serverInfo, status] = await Promise.all([
-      apiClient.getServer(serverId),
-      apiClient.getServerStatus(serverId),
-    ]);
+    const server = await apiClient.getServer(serverId);
 
     await interaction.editReply({
       embeds: [
         serverStatusEmbed(
-          serverInfo.name || serverId,
-          status.status,
-          status.online,
-          status.players,
-          status.maxPlayers
+          server.name || serverId,
+          server.status?.state || 'unknown',
+          server.status?.live || false
         ),
       ],
     });

@@ -9,27 +9,38 @@ export interface BotConfig {
   };
 }
 
-export interface ApiAuthResponse {
-  access_token: string;
-}
-
 export interface ServerInfo {
   id: string;
   name: string;
-  version?: string;
-  status?: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
+  path: string;
+  active: boolean;
+  minecraftVersion?: string | null;
+  motd?: string;
+  port?: number;
+  status?: ServerStatus;
 }
 
 export interface ServerStatus {
-  status: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
-  online: boolean;
-  players?: number;
-  maxPlayers?: number;
+  serverId: string;
+  active: boolean;
+  state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
+  live: boolean;
+  portReachable: boolean;
+  rconReachable: boolean;
+  commandAvailable: boolean;
+  managed: boolean;
+  pid: number | null;
 }
 
 export interface Player {
   name: string;
   uuid?: string;
+}
+
+export interface WhitelistResponse {
+  serverId: string;
+  count: number;
+  players: string[];
 }
 
 export interface ApiError {

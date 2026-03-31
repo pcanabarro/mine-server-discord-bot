@@ -34,7 +34,7 @@ export async function execute(interaction: CommandInteraction): Promise<void> {
       .setTitle(`📋 Server Info: ${serverInfo.name || serverId}`)
       .addFields(
         { name: 'ID', value: serverInfo.id, inline: true },
-        { name: 'Version', value: serverInfo.version || 'Unknown', inline: true }
+        { name: 'Version', value: serverInfo.minecraftVersion || 'Unknown', inline: true }
       )
       .setTimestamp();
 

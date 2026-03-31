@@ -27,44 +27,57 @@ Discord bot for managing Minecraft servers through the mine-server-api. This bot
 - No web dashboard or HTTP server.
 - No direct file system access to Minecraft server folders.
 
-## Recommended Stack
+## Stack
 
-- Runtime: `Node.js`
+- Runtime: `Node.js 18+`
 - Language: `TypeScript`
-- Discord Library: `discord.js`
+- Discord Library: `discord.js v14`
 - HTTP Client: `axios`
 - Config: `dotenv` for secrets, JSON for bot settings
 
 ## High-Level Architecture
 
-- `api/auth.ts`:
-  - Authenticates with mine-server-api
-  - Manages JWT token with auto-refresh before expiration
-- `api/client.ts`:
-  - HTTP client wrapping all API endpoints
-  - Automatically attaches bearer token to requests
-  - Handles 401 errors with token refresh and retry
-- `commands/`:
-  - One file per slash command
-  - Each command checks permissions, calls API, returns embed
-- `guards/permission.ts`:
-  - Checks if user has any of the allowed role IDs
-  - Returns error embed if permission denied
-- `utils/embeds.ts`:
-  - Builders for success, error, info, and warning embeds
-  - Consistent styling across all commands
-- `utils/config.ts`:
-  - Loads environment variables and bot-config.json
+```
+src/
+├── api/
+│   ├── auth.ts           # JWT authentication with auto-refresh
+│   └── client.ts         # HTTP client for all API endpoints
+├── commands/
+│   ├── index.ts          # Command registry and active server tracking
+│   ├── status.ts         # /status
+│   ├── start.ts          # /start
+│   ├── stop.ts           # /stop
+│   ├── restart.ts        # /restart
+│   ├── players.ts        # /players
+│   ├── whitelist.ts      # /whitelist list|add|remove
+│   ├── kick.ts           # /kick
+│   ├── ban.ts            # /ban
+│   ├── unban.ts          # /unban
+│   ├── say.ts            # /say
+│   ├── info.ts           # /info
+│   ├── servers.ts        # /servers
+│   └── switch.ts         # /switch
+├── guards/
+│   └── permission.ts     # Role-based access control
+├── types/
+│   └── index.ts          # TypeScript interfaces
+├── utils/
+│   ├── config.ts         # Environment and JSON config loader
+│   └── embeds.ts         # Embed message builders
+├── bot.ts                # Discord client setup and event handling
+└── index.ts              # Entry point
+```
 
 ## Slash Commands
 
 | Command | API Endpoint | Description |
 |---------|--------------|-------------|
-| `/status` | `GET /servers/:id/status` | Server status and player count |
+| `/status` | `GET /servers/:id` | Server state and online status |
 | `/start` | `POST /servers/:id/start` | Start the server |
 | `/stop` | `POST /servers/:id/stop` | Stop the server |
 | `/restart` | `POST /servers/:id/restart` | Restart the server |
 | `/players` | `GET /servers/:id/players` | List online players |
+| `/whitelist list` | `GET /servers/:id/whitelist` | View whitelist |
 | `/whitelist add` | `POST /servers/:id/whitelist` | Add to whitelist |
 | `/whitelist remove` | `DELETE /servers/:id/whitelist/:player` | Remove from whitelist |
 | `/kick` | `POST /servers/:id/kick` | Kick a player |
@@ -90,10 +103,44 @@ Discord bot for managing Minecraft servers through the mine-server-api. This bot
 - `defaultServerId` - Server ID to use on startup (nullable)
 - `embedColors` - Hex colors for success, error, info, warning embeds
 
+## API Response Formats
+
+The bot expects the following response structures from mine-server-api:
+
+### GET /servers/:id
+```json
+{
+  "id": "string",
+  "name": "string",
+  "status": {
+    "state": "stopped|starting|running|stopping|error",
+    "live": true|false
+  }
+}
+```
+
+### GET /servers/:id/whitelist
+```json
+{
+  "serverId": "string",
+  "count": 0,
+  "players": ["player1", "player2"]
+}
+```
+
+### POST /auth
+```json
+{
+  "accessToken": "jwt-token",
+  "tokenType": "Bearer",
+  "expiresIn": "12h"
+}
+```
+
 ## Implementation Rules
 
 - All commands must check permissions before any API call.
-- Always defer reply before making API calls (prevents timeout).
+- Always defer reply before making API calls (prevents Discord timeout).
 - Handle API errors gracefully with user-friendly error embeds.
 - Keep command files focused - one command per file.
 - Use the shared embed builders for consistent styling.
@@ -108,41 +155,13 @@ Discord bot for managing Minecraft servers through the mine-server-api. This bot
 
 ## Error Handling
 
-- API connection failures → "Server unavailable" message
+- API connection failures → Show API error message if available
 - 401 Unauthorized → Auto-refresh token and retry once
-- 4xx/5xx errors → Display friendly error message
+- 4xx/5xx errors → Display the error message from API
 - Missing active server → Prompt to use `/servers` and `/switch`
-
-## Testing Expectations
-
-- Unit test permission guard with various role configurations.
-- Unit test embed builders produce valid embeds.
-- Mock API client for command handler tests.
-- Integration test command registration.
-
-## Dependencies on mine-server-api
-
-This bot depends on the following API endpoints being available:
-
-- `POST /auth` - JWT token issuance
-- `GET /servers` - List available servers
-- `GET /servers/:id` - Server details
-- `GET /servers/:id/status` - Server status
-- `POST /servers/:id/start` - Start server
-- `POST /servers/:id/stop` - Stop server
-- `POST /servers/:id/restart` - Restart server
-- `GET /servers/:id/players` - Online players
-- `POST /servers/:id/whitelist` - Add to whitelist
-- `DELETE /servers/:id/whitelist/:player` - Remove from whitelist
-- `POST /servers/:id/kick` - Kick player
-- `POST /servers/:id/ban` - Ban player
-- `DELETE /servers/:id/ban/:player` - Unban player
-- `POST /servers/:id/say` - Server announcement
-- `GET /servers/:id/info` - Server info
-- `GET /servers/:id/extensions` - Plugins/mods list
 
 ## Current Repo State
 
 - Fully implemented and functional.
-- All 13 slash commands implemented.
+- All 13 slash commands implemented (15 including subcommands).
 - Ready for deployment with proper configuration.

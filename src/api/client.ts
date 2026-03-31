@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { env } from '../utils/config';
 import { authService } from './auth';
-import { ServerInfo, ServerStatus, Player, ApiError } from '../types';
+import { ServerInfo, ServerStatus, Player, WhitelistResponse } from '../types';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -73,7 +73,7 @@ class ApiClient {
 
   async getPlayers(serverId: string): Promise<Player[]> {
     const response = await this.client.get(`/servers/${serverId}/players`);
-    return response.data;
+    return response.data.players || response.data;
   }
 
   async addToWhitelist(serverId: string, player: string): Promise<void> {
@@ -84,7 +84,7 @@ class ApiClient {
     await this.client.delete(`/servers/${serverId}/whitelist/${player}`);
   }
 
-  async getWhitelist(serverId: string): Promise<string[]> {
+  async getWhitelist(serverId: string): Promise<WhitelistResponse> {
     const response = await this.client.get(`/servers/${serverId}/whitelist`);
     return response.data;
   }

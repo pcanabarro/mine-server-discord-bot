@@ -23,14 +23,15 @@ export async function execute(interaction: CommandInteraction): Promise<void> {
       return;
     }
 
-    const [serverInfo, players] = await Promise.all([
-      apiClient.getServer(serverId),
-      apiClient.getPlayers(serverId),
-    ]);
+    const server = await apiClient.getServer(serverId);
+    const players = await apiClient.getPlayers(serverId);
 
-    const playerNames = players.map((p) => p.name);
+    const playerNames = Array.isArray(players) 
+      ? players.map((p) => typeof p === 'string' ? p : p.name)
+      : [];
+      
     await interaction.editReply({
-      embeds: [playerListEmbed(playerNames, serverInfo.name || serverId)],
+      embeds: [playerListEmbed(playerNames, server.name || serverId)],
     });
   } catch (error) {
     console.error('Error getting players:', error);

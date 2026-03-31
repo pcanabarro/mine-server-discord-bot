@@ -9,16 +9,18 @@ A Discord bot for managing Minecraft servers via the [mine-server-api](../mine-s
 - **Server Announcements**: Send `/say` messages to the server
 - **Multi-Server Support**: Switch between multiple servers with `/switch`
 - **Role-Based Permissions**: Only users with configured roles can execute commands
+- **Rich Embeds**: Color-coded responses for better readability
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/status` | Check server status (online/offline, player count) |
+| `/status` | Check server status (state, online/offline) |
 | `/start` | Start the Minecraft server |
 | `/stop` | Stop the Minecraft server |
 | `/restart` | Restart the Minecraft server |
 | `/players` | List online players |
+| `/whitelist list` | View all whitelisted players |
 | `/whitelist add <player>` | Add player to whitelist |
 | `/whitelist remove <player>` | Remove player from whitelist |
 | `/kick <player> [reason]` | Kick a player |
@@ -35,11 +37,11 @@ A Discord bot for managing Minecraft servers via the [mine-server-api](../mine-s
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
 2. Create a new application
-3. Go to "Bot" section and create a bot
-4. Copy the bot token
-5. Enable "Server Members Intent" if needed
-6. Go to OAuth2 > URL Generator, select `bot` and `applications.commands` scopes
-7. Select required permissions and use the generated URL to invite the bot
+3. Go to "Bot" section and click "Reset Token" to get your bot token
+4. Go to OAuth2 > URL Generator
+5. Select scopes: `bot` and `applications.commands`
+6. Select permissions: `Send Messages`, `Embed Links`, `Use Slash Commands`
+7. Use the generated URL to invite the bot to your server
 
 ### 2. Configure the Bot
 
@@ -56,11 +58,11 @@ A Discord bot for managing Minecraft servers via the [mine-server-api](../mine-s
    API_PASSWORD=your_api_password
    ```
 
-3. Configure `config/bot-config.json`:
+3. Configure `config/bot-config.json` with allowed role IDs:
    ```json
    {
      "allowedRoleIds": ["123456789012345678"],
-     "defaultServerId": "survival",
+     "defaultServerId": null,
      "embedColors": {
        "success": "#00FF00",
        "error": "#FF0000",
@@ -69,6 +71,8 @@ A Discord bot for managing Minecraft servers via the [mine-server-api](../mine-s
      }
    }
    ```
+
+   To get a role ID: Enable Developer Mode in Discord (Settings > Advanced), then right-click the role and select "Copy ID".
 
 ### 3. Install Dependencies
 
@@ -103,22 +107,44 @@ npm start
 | Field | Description |
 |-------|-------------|
 | `allowedRoleIds` | Array of Discord role IDs that can use commands |
-| `defaultServerId` | Default server to manage on startup |
-| `embedColors` | Colors for embed messages (success, error, info, warning) |
+| `defaultServerId` | Default server ID to manage on startup (optional) |
+| `embedColors` | Hex colors for embed messages |
 
 ## Permissions
 
 Users must have at least one of the roles listed in `allowedRoleIds` to use any command. If no roles are configured, all commands will be denied.
 
-To get a role ID:
-1. Enable Developer Mode in Discord (Settings > App Settings > Advanced)
-2. Right-click the role and select "Copy ID"
+## Project Structure
+
+```
+mine-server-discord-bot/
+├── config/
+│   ├── .env              # Secrets (not committed)
+│   ├── .env.example      # Template for secrets
+│   └── bot-config.json   # Bot settings
+├── src/
+│   ├── api/
+│   │   ├── auth.ts       # JWT authentication
+│   │   └── client.ts     # API HTTP client
+│   ├── commands/         # Slash command handlers
+│   ├── guards/
+│   │   └── permission.ts # Role-based access control
+│   ├── types/
+│   │   └── index.ts      # TypeScript interfaces
+│   ├── utils/
+│   │   ├── config.ts     # Configuration loader
+│   │   └── embeds.ts     # Embed message builders
+│   ├── bot.ts            # Discord client setup
+│   └── index.ts          # Entry point
+├── package.json
+└── tsconfig.json
+```
 
 ## Requirements
 
 - Node.js 18+
 - mine-server-api running and accessible
-- Discord bot with `applications.commands` scope
+- Discord bot with `bot` and `applications.commands` scopes
 
 ## License
 

@@ -55,11 +55,11 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         .setTitle('📋 Whitelist')
         .setTimestamp();
 
-      if (whitelist.length === 0) {
+      if (whitelist.players.length === 0) {
         embed.setDescription('No players whitelisted.');
       } else {
-        embed.setDescription(whitelist.map((p) => `• ${p}`).join('\n'));
-        embed.setFooter({ text: `${whitelist.length} player(s)` });
+        embed.setDescription(whitelist.players.map((p) => `• ${p}`).join('\n'));
+        embed.setFooter({ text: `${whitelist.count} player(s)` });
       }
 
       await interaction.editReply({ embeds: [embed] });

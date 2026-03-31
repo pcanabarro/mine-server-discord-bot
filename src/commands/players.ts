@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, CommandInteraction } from 'discord.js';
+import { AxiosError } from 'axios';
 import { checkPermission } from '../guards/permission';
 import { apiClient } from '../api/client';
 import { playerListEmbed, errorEmbed } from '../utils/embeds';
@@ -33,8 +34,14 @@ export async function execute(interaction: CommandInteraction): Promise<void> {
     });
   } catch (error) {
     console.error('Error getting players:', error);
+    
+    let errorMessage = 'Failed to get player list. Is the server running?';
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    }
+    
     await interaction.editReply({
-      embeds: [errorEmbed('Error', 'Failed to get player list. Is the server running?')],
+      embeds: [errorEmbed('Error', errorMessage)],
     });
   }
 }

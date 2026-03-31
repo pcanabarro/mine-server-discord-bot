@@ -84,6 +84,11 @@ class ApiClient {
     await this.client.delete(`/servers/${serverId}/whitelist/${player}`);
   }
 
+  async getWhitelist(serverId: string): Promise<string[]> {
+    const response = await this.client.get(`/servers/${serverId}/whitelist`);
+    return response.data;
+  }
+
   async kickPlayer(serverId: string, player: string, reason?: string): Promise<void> {
     await this.client.post(`/servers/${serverId}/kick`, { player, reason });
   }

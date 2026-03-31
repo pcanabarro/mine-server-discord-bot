@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, CommandInteraction } from 'discord.js';
+import { AxiosError } from 'axios';
 import { checkPermission } from '../guards/permission';
 import { apiClient } from '../api/client';
 import { serverStatusEmbed, errorEmbed } from '../utils/embeds';
@@ -40,8 +41,14 @@ export async function execute(interaction: CommandInteraction): Promise<void> {
     });
   } catch (error) {
     console.error('Error getting server status:', error);
+    
+    let errorMessage = 'Failed to get server status. Is the API available?';
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    }
+    
     await interaction.editReply({
-      embeds: [errorEmbed('Error', 'Failed to get server status. Is the API available?')],
+      embeds: [errorEmbed('Error', errorMessage)],
     });
   }
 }

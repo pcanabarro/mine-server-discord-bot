@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { env } from '../utils/config';
-import { ApiAuthResponse } from '../types';
+
+interface ApiAuthResponse {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: string;
+}
 
 class AuthService {
   private token: string | null = null;
@@ -15,10 +20,11 @@ class AuthService {
       }
     );
 
-    this.token = response.data.access_token;
-    // JWT tokens typically expire in 1 hour, refresh 5 minutes before
-    this.tokenExpiry = Date.now() + 55 * 60 * 1000;
+    this.token = response.data.accessToken;
+    // JWT tokens typically expire in 12 hours, refresh 5 minutes before
+    this.tokenExpiry = Date.now() + 11 * 60 * 60 * 1000;
 
+    console.log('✅ Authenticated with API');
     return this.token;
   }
 

@@ -1,5 +1,7 @@
 {
-  "allowedRoleIds": [],
+  "allowedRoleIds": [
+    "1248324833452884079"
+  ],
   "defaultServerId": null,
   "embedColors": {
     "success": "#00FF00",

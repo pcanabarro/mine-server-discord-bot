@@ -15,6 +15,7 @@ import * as infoCmd from './info';
 import * as serversCmd from './servers';
 import * as switchCmd from './switch';
 import * as opCmd from './op';
+import * as deopCmd from './deop';
 
 export interface Command {
   data: SharedSlashCommand;
@@ -36,6 +37,7 @@ const commands: Command[] = [
   serversCmd,
   switchCmd,
   opCmd,
+  deopCmd,
 ];
 
 export const commandCollection = new Collection<string, Command>();

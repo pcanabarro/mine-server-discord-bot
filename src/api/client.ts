@@ -105,6 +105,10 @@ class ApiClient {
     await this.client.post(`/servers/${serverId}/say`, { message });
   }
 
+  async opPlayer(serverId: string, player: string): Promise<void> {
+    await this.client.post(`/servers/${serverId}/op`, { player });
+  }
+
   async getServerInfo(serverId: string): Promise<ServerInfo> {
     const response = await this.client.get(`/servers/${serverId}/info`);
     return response.data;
